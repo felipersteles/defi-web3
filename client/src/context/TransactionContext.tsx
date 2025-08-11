@@ -58,21 +58,21 @@ declare global {
 const { ethereum } = window;
 
 /**
- * Retrieves an initialized ethers.js Contract instance for interacting with 
+ * Retrieves an initialized ethers.js Contract instance for interacting with
  * the blockchain transaction contract.
- * 
+ *
  * @returns {Promise<ethers.Contract>} - A promise that resolves to an ethers.js Contract instance
  * @throws {Error} - Throws an error if:
  *                   - Ethereum provider (like MetaMask) is not detected
  *                   - Contract initialization fails
- * 
+ *
  * @note In a production environment, this should be enhanced to:
  *       1. Fetch contract address and ABI from a secure backend API
  *       2. Include proper authentication/authorization
  *       3. Implement error handling for network issues
  *       4. Add caching for contract instance
  *       5. Support different networks/chains
- * 
+ *
  * @example
  * // Basic usage
  * try {
@@ -158,7 +158,6 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
             const transactionContract = await getEthereumContract();
             const parsedAmount = ethers.parseEther(amount);
 
-
             await ethereum.request({
                 method: "eth_sendTransaction",
                 params: [
@@ -208,7 +207,11 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const getAllTransactions = async () => {
         try {
-            if (!ethereum) return alert("Please install MetaMask");
+            if (!ethereum) {
+                alert("Please install MetaMask");
+                return;
+            }
+
             const transactionContract = await getEthereumContract();
             const availableTransactions =
                 await transactionContract.getAllTransactions();
@@ -228,7 +231,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
             setTransactions(structuredTransactions);
             setTransactionCount(structuredTransactions.length);
         } catch (error) {
-            console.error(error);
+            console.error("Failed to get transactions:", error);
             throw new Error("Could not fetch transactions");
         }
     };
@@ -278,13 +281,14 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 };
 
-
 export const useTransaction = () => {
-  const context = useContext(TransactionContext);
-  
-  if (context === undefined) {
-    throw new Error("useTransaction must be used within a TransactionProvider");
-  }
-  
-  return context;
+    const context = useContext(TransactionContext);
+
+    if (context === undefined) {
+        throw new Error(
+            "useTransaction must be used within a TransactionProvider"
+        );
+    }
+
+    return context;
 };
